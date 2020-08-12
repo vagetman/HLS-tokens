@@ -132,15 +132,12 @@ fn media_token(pl: &mut MediaPlaylist,
     for segment in &mut pl.segments {
         segment.uri = set_token(now, segment.uri.to_string(), &req_url_path);
         if segment.key.is_some() {
-            segment.key = token_key(now, &segment.key, &req_url_path);
-            println!("key -- {:?}", segment.key);
+            let mut k = segment.key.clone().unwrap();
+            if k.uri.is_some() {
+                k.uri = Some(set_token(now, k.uri.unwrap(), &req_url_path));
+            }
+            segment.key = Some(k);
         }
-/*
-        if segment.map.is_some() {
-            segment.map = token_map(now, &segment.map, &req_url_path);
-            println!("map -- {:?}", segment.map);
-        }
-*/
     }
     let mut resp_body = vec![];
 
@@ -158,31 +155,6 @@ fn media_token(pl: &mut MediaPlaylist,
 
     Ok(())
 }
-
-fn token_key(now: u64,
-             key_url: &Option<m3u8_rs::playlist::Key>,
-             req_url_path: &str)
-             -> Option<m3u8_rs::playlist::Key> {
-
-    let mut k = key_url.clone().unwrap();
-    if k.uri.is_some() {
-        k.uri = Some(set_token(now, k.uri.unwrap(), &req_url_path));
-    }
-    Some(k)
-}
-
-/*
-fn token_map(now: u64,
-             map_url: &Option<m3u8_rs::playlist::Map>,
-             req_url_path: &str)
-             -> Option<m3u8_rs::playlist::Map> {
-
-    let mut m = map_url.clone().unwrap();
-    if m.uri.is_some() {
-        m.uri = Some(set_token(now, m.uri.unwrap(), &req_url_path));
-    }
-    Some(m)
-} */
 
 fn get_epoch() ->u64 {
     use std::time::{SystemTime, UNIX_EPOCH};
@@ -251,33 +223,6 @@ fn set_token(unix_time: u64, url: String, req_url_path: &str) -> String {
 
     format!("{}{}{}{}{}", proto, host, uri_path, qs, token)
 }
-
-/*
-#[macro_use]
-extern crate nom;
-use nom::{named,do_parse};
-
-named!(pub get_parts <&str>,
-do_parse!(
-    proto: opt!(
-        do_parse!(
-            p:  take_until!(":") >>
-                tag!("://") >>
-            (p)
-        )) >>
-    host: opt!(is_not!(":/?#[]@")) >>
-    dirname: opt!(is_not!(":?#[]")) >>
-    basename: (parse_path) >>
-    query: opt!(complete!(is_not!("&=:#[]"))) >>
-
-    ( match authority {
-        Some(a) => URI {scheme, user:a.0, host:Some(a.1), port: a.2, path, query, hash},
-        None => URI {scheme, user:None, host:None, port:None, path, query, hash}
-    }
-    )
-));
-*/
-
 
 #[macro_use]
 extern crate lazy_static;
