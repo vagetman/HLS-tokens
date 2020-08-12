@@ -1,0 +1,6 @@
+version = 52
+name = "ae-dai-hls-tokens"
+description = "This service is proxying AE requests to Google DAI and is adding tokens to responses"
+authors = ["vagetman@gmail.com"]
+language = "rust"
+service_id = "4WtvE6AAA62wAx6LafmPhc"
