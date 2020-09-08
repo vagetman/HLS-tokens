@@ -126,8 +126,6 @@ fn media_token(pl: &mut MediaPlaylist,
                mut meta: Parts,
                req_url_path : String) -> Result<(), Error>  {
 
-    println!("media manifest");
-
     let now = get_epoch();
     for segment in &mut pl.segments {
         segment.uri = set_token(now, segment.uri.to_string(), &req_url_path);
